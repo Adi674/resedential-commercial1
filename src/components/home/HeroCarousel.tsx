@@ -9,18 +9,21 @@ const slides = [
     title: 'Find Your Dream Home',
     subtitle: 'Premium Residential Properties',
     location: 'Greater Noida',
+    propertyId: '1',
   },
   {
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80',
     title: 'Prime Commercial Spaces',
     subtitle: 'Invest in the Future',
     location: 'Greater Noida',
+    propertyId: '4',
   },
   {
     image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1920&q=80',
     title: 'Luxury Living Awaits',
     subtitle: 'Modern Architecture & Design',
     location: 'Greater Noida',
+    propertyId: '2',
   },
 ];
 
@@ -41,10 +44,11 @@ const HeroCarousel: React.FC = () => {
     <section className="relative h-[70vh] md:h-[85vh] overflow-hidden">
       {/* Slides */}
       {slides.map((slide, index) => (
-        <div
+        <Link
           key={index}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
-            index === currentSlide ? 'opacity-100' : 'opacity-0'
+          to={`/property/${slide.propertyId}`}
+          className={`absolute inset-0 transition-opacity duration-1000 cursor-pointer ${
+            index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
           <div
@@ -52,7 +56,7 @@ const HeroCarousel: React.FC = () => {
             style={{ backgroundImage: `url(${slide.image})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-transparent" />
-        </div>
+        </Link>
       ))}
 
       {/* Content */}

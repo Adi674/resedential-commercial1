@@ -13,6 +13,21 @@ export interface Property {
   featured: boolean;
   status: 'Ready to Move' | 'Under Construction' | 'New Launch';
   amenities: string[];
+  category?: string;
+  subcategory?: string;
+}
+
+export interface ListingItem {
+  id: string;
+  title: string;
+  location?: string;
+  specs?: string;
+  category: 'featured-project' | 'retail-shops' | 'generic' | 'villas-apartments' | 'plots';
+  subcategory?: string;
+  type: 'Commercial' | 'Residential';
+  image?: string;
+  hasDetailPage?: boolean;
+  propertyId?: string;
 }
 
 export interface Client {
@@ -144,6 +159,209 @@ export const properties: Property[] = [
     featured: false,
     status: 'Ready to Move',
     amenities: ['Swimming Pool', 'Gym', 'Jogging Track'],
+  },
+  {
+    id: '7',
+    name: 'Nirala Gateway',
+    developer: 'Nirala Group',
+    location: 'Sector 16, Greater Noida West',
+    type: 'Commercial',
+    price: '₹40 L - ₹1.8 Cr',
+    pricePerSqFt: 7500,
+    area: '500 - 2400 sq.ft',
+    image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80',
+    featured: true,
+    status: 'Under Construction',
+    amenities: ['Food Court', 'ATM', 'Parking', 'Power Backup'],
+  },
+  {
+    id: '8',
+    name: 'Diadem',
+    developer: 'Diadem Developers',
+    location: 'Sector 10, Greater Noida',
+    type: 'Commercial',
+    price: '₹55 L - ₹2 Cr',
+    pricePerSqFt: 8000,
+    area: '650 - 2500 sq.ft',
+    image: 'https://images.unsplash.com/photo-1577495508326-19a1b3cf65b7?w=800&q=80',
+    featured: true,
+    status: 'New Launch',
+    amenities: ['Cafeteria', 'Conference Halls', 'Parking', 'Security'],
+  },
+  {
+    id: '9',
+    name: 'Bhutani Astrathum',
+    developer: 'Bhutani Infra',
+    location: 'Sector 12, Noida Extension',
+    type: 'Commercial',
+    price: '₹60 L - ₹3 Cr',
+    pricePerSqFt: 9000,
+    area: '700 - 3500 sq.ft',
+    image: 'https://images.unsplash.com/photo-1464938050520-ef2571e2d2dc?w=800&q=80',
+    featured: true,
+    status: 'Under Construction',
+    amenities: ['Rooftop Restaurant', 'Multiplex', 'Premium Parking', 'Sky Lounge'],
+  },
+];
+
+// Commercial Listings Data
+export const commercialListings: ListingItem[] = [
+  // Featured Projects
+  {
+    id: 'c1',
+    title: 'Nirala Gateway',
+    location: 'Sector 16, Greater Noida West',
+    category: 'featured-project',
+    type: 'Commercial',
+    image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80',
+    hasDetailPage: true,
+    propertyId: '7',
+  },
+  {
+    id: 'c2',
+    title: 'Diadem',
+    location: 'Sector 10, Greater Noida',
+    category: 'featured-project',
+    type: 'Commercial',
+    image: 'https://images.unsplash.com/photo-1577495508326-19a1b3cf65b7?w=800&q=80',
+    hasDetailPage: true,
+    propertyId: '8',
+  },
+  {
+    id: 'c3',
+    title: 'Bhutani Astrathum',
+    location: 'Sector 12, Noida Extension',
+    category: 'featured-project',
+    type: 'Commercial',
+    image: 'https://images.unsplash.com/photo-1464938050520-ef2571e2d2dc?w=800&q=80',
+    hasDetailPage: true,
+    propertyId: '9',
+  },
+  // Retail Shops
+  {
+    id: 'c4',
+    title: 'Plaza near Techzone 5',
+    location: 'Techzone 5, Greater Noida',
+    category: 'retail-shops',
+    type: 'Commercial',
+    specs: '200 - 1500 sq.ft',
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80',
+    hasDetailPage: true,
+    propertyId: '5',
+  },
+  // Generic Categories
+  {
+    id: 'c5',
+    title: 'Office Space',
+    category: 'generic',
+    type: 'Commercial',
+    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
+    hasDetailPage: false,
+  },
+  {
+    id: 'c6',
+    title: 'Studio Apartment',
+    category: 'generic',
+    type: 'Commercial',
+    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80',
+    hasDetailPage: false,
+  },
+  {
+    id: 'c7',
+    title: 'Food Court',
+    category: 'generic',
+    type: 'Commercial',
+    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
+    hasDetailPage: false,
+  },
+];
+
+// Residential Listings Data
+export const residentialListings: ListingItem[] = [
+  // Villas & Apartments
+  {
+    id: 'r1',
+    title: 'Independent House',
+    location: 'Sector 78, Greater Noida',
+    category: 'villas-apartments',
+    subcategory: 'Independent House',
+    type: 'Residential',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
+    hasDetailPage: false,
+  },
+  {
+    id: 'r2',
+    title: 'Duplex Villa',
+    location: 'Sector 150, Greater Noida',
+    category: 'villas-apartments',
+    subcategory: 'Duplex',
+    type: 'Residential',
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
+    hasDetailPage: false,
+  },
+  {
+    id: 'r3',
+    title: 'Pre-launch Projects',
+    location: 'Greater Noida West',
+    category: 'villas-apartments',
+    subcategory: 'Pre-launch',
+    type: 'Residential',
+    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
+    hasDetailPage: false,
+  },
+  {
+    id: 'r4',
+    title: 'Fresh Booking',
+    location: 'Sector 1, Greater Noida',
+    category: 'villas-apartments',
+    subcategory: 'Fresh Booking',
+    type: 'Residential',
+    image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80',
+    hasDetailPage: false,
+  },
+  {
+    id: 'r5',
+    title: 'Ready to Move',
+    location: 'Sector 137, Greater Noida',
+    category: 'villas-apartments',
+    subcategory: 'Ready-to-move',
+    type: 'Residential',
+    image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80',
+    hasDetailPage: false,
+  },
+  // Plots
+  {
+    id: 'r6',
+    title: 'Gated Colony Plot',
+    location: 'Sector-16B, Greater Noida',
+    category: 'plots',
+    subcategory: 'Gated Colony',
+    specs: '60m - 2500m',
+    type: 'Residential',
+    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80',
+    hasDetailPage: false,
+  },
+  {
+    id: 'r7',
+    title: 'Authority Plot',
+    location: 'Roza, Greater Noida',
+    category: 'plots',
+    subcategory: 'Authority Plots',
+    specs: '100m - 1000m',
+    type: 'Residential',
+    image: 'https://images.unsplash.com/photo-1628624747186-a941c476b7ef?w=800&q=80',
+    hasDetailPage: false,
+  },
+  {
+    id: 'r8',
+    title: 'Premium Authority Plot',
+    location: 'Sector-16B, Greater Noida',
+    category: 'plots',
+    subcategory: 'Authority Plots',
+    specs: '200m - 2500m',
+    type: 'Residential',
+    image: 'https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=800&q=80',
+    hasDetailPage: false,
   },
 ];
 
