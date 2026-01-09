@@ -52,10 +52,6 @@ const AboutSection: React.FC = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground p-6 rounded-xl shadow-lg">
-              <div className="text-3xl font-bold">15+</div>
-              <div className="text-sm opacity-90">Years of Excellence</div>
-            </div>
           </div>
         </div>
       </div>
