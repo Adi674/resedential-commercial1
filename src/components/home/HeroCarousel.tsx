@@ -5,25 +5,25 @@ import { Link } from 'react-router-dom';
 
 const slides = [
   {
-    image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1920&q=80',
+    image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1920&q=80',
     title: 'Nirala Gateway',
     subtitle: 'Premium Commercial Hub in Greater Noida',
-    location: 'Techzone 4, Greater Noida',
-    propertyId: 'nirala-gateway',
+    location: 'Sector 16, Greater Noida West',
+    propertyId: '7',
   },
   {
-    image: 'https://images.unsplash.com/photo-1577412647305-991150c7d163?w=1920&q=80',
+    image: 'https://images.unsplash.com/photo-1577495508326-19a1b3cf65b7?w=1920&q=80',
     title: 'Diadem',
     subtitle: 'Luxury Living Redefined',
-    location: 'Greater Noida West',
-    propertyId: 'diadem',
+    location: 'Sector 10, Greater Noida',
+    propertyId: '8',
   },
   {
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80',
+    image: 'https://images.unsplash.com/photo-1464938050520-ef2571e2d2dc?w=1920&q=80',
     title: 'Bhutani Astrathum',
     subtitle: 'Premium Commercial & Retail Space',
-    location: 'Sector 12, Greater Noida',
-    propertyId: 'bhutani-astrathum',
+    location: 'Sector 12, Noida Extension',
+    propertyId: '9',
   },
 ];
 
