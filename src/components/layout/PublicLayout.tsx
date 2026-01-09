@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import FloatingQueryCTA from '@/components/FloatingQueryCTA';
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
         {children}
       </main>
       <Footer />
+      <FloatingQueryCTA />
     </div>
   );
 };

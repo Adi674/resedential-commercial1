@@ -1,58 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Search, Filter, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Building, Home, MapPin, Ruler, Phone } from 'lucide-react';
 import PublicLayout from '@/components/layout/PublicLayout';
-import PropertyCard from '@/components/property/PropertyCard';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { properties, Property } from '@/data/mockData';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import LeadCaptureModal from '@/components/property/LeadCaptureModal';
+import { commercialListings, residentialListings, ListingItem } from '@/data/mockData';
+
+interface ListingCardProps {
+  item: ListingItem;
+  onContactClick: (title: string) => void;
+}
+
+const ListingCard: React.FC<ListingCardProps> = ({ item, onContactClick }) => {
+  const buttonText = item.category === 'plots' 
+    ? 'Enquire Now' 
+    : item.category === 'generic' 
+      ? 'Contact Us for Availability' 
+      : item.category === 'villas-apartments'
+        ? 'Contact Us for More'
+        : 'View Details';
+
+  const showContactButton = !item.hasDetailPage;
+
+  return (
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
+      {item.image && (
+        <div className="aspect-[4/3] overflow-hidden relative">
+          <img
+            src={item.image}
+            alt={item.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          {item.subcategory && (
+            <Badge className="absolute top-3 left-3 bg-primary/90">
+              {item.subcategory}
+            </Badge>
+          )}
+        </div>
+      )}
+      <CardContent className="p-4">
+        <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+        {item.location && (
+          <p className="text-muted-foreground text-sm flex items-center gap-1 mb-2">
+            <MapPin className="w-4 h-4" />
+            {item.location}
+          </p>
+        )}
+        {item.specs && (
+          <p className="text-muted-foreground text-sm flex items-center gap-1 mb-3">
+            <Ruler className="w-4 h-4" />
+            {item.specs}
+          </p>
+        )}
+        {item.hasDetailPage && item.propertyId ? (
+          <Link to={`/property/${item.propertyId}`}>
+            <Button className="w-full">{buttonText}</Button>
+          </Link>
+        ) : showContactButton ? (
+          <Button 
+            className="w-full gap-2" 
+            onClick={() => onContactClick(item.title)}
+          >
+            <Phone className="w-4 h-4" />
+            {buttonText}
+          </Button>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+};
 
 const Listings: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
-  const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>(searchParams.get('type') || 'all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [isLoading, setIsLoading] = useState(true);
+  const initialTab = searchParams.get('type') === 'residential' ? 'residential' : 'commercial';
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState('');
 
-  useEffect(() => {
-    // Simulate API loading
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      let result = [...properties];
-
-      if (search) {
-        result = result.filter(
-          (p) =>
-            p.name.toLowerCase().includes(search.toLowerCase()) ||
-            p.location.toLowerCase().includes(search.toLowerCase()) ||
-            p.developer.toLowerCase().includes(search.toLowerCase())
-        );
-      }
-
-      if (typeFilter !== 'all') {
-        result = result.filter((p) => p.type.toLowerCase() === typeFilter.toLowerCase());
-      }
-
-      if (statusFilter !== 'all') {
-        result = result.filter((p) => p.status === statusFilter);
-      }
-
-      setFilteredProperties(result);
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [search, typeFilter, statusFilter]);
-
-  const clearFilters = () => {
-    setSearch('');
-    setTypeFilter('all');
-    setStatusFilter('all');
+  const handleContactClick = (title: string) => {
+    setSelectedProperty(title);
+    setIsModalOpen(true);
   };
 
-  const hasActiveFilters = search || typeFilter !== 'all' || statusFilter !== 'all';
+  // Group commercial listings
+  const featuredProjects = commercialListings.filter(item => item.category === 'featured-project');
+  const retailShops = commercialListings.filter(item => item.category === 'retail-shops');
+  const genericCommercial = commercialListings.filter(item => item.category === 'generic');
+
+  // Group residential listings
+  const villasApartments = residentialListings.filter(item => item.category === 'villas-apartments');
+  const plots = residentialListings.filter(item => item.category === 'plots');
 
   return (
     <PublicLayout>
@@ -68,81 +108,97 @@ const Listings: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8 p-4 bg-card rounded-xl border border-border">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Search by name, location, or developer..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-full md:w-48">
-              <SelectValue placeholder="Property Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="residential">Residential</SelectItem>
-              <SelectItem value="commercial">Commercial</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full md:w-48">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="Ready to Move">Ready to Move</SelectItem>
-              <SelectItem value="Under Construction">Under Construction</SelectItem>
-              <SelectItem value="New Launch">New Launch</SelectItem>
-            </SelectContent>
-          </Select>
-          {hasActiveFilters && (
-            <Button variant="outline" onClick={clearFilters} className="gap-2">
-              <X className="w-4 h-4" />
-              Clear
-            </Button>
-          )}
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+            <TabsTrigger value="commercial" className="gap-2">
+              <Building className="w-4 h-4" />
+              Commercial
+            </TabsTrigger>
+            <TabsTrigger value="residential" className="gap-2">
+              <Home className="w-4 h-4" />
+              Residential
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Results */}
-        <div className="mb-4 text-muted-foreground">
-          Showing {filteredProperties.length} properties
-        </div>
-
-        {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-card rounded-xl overflow-hidden animate-pulse">
-                <div className="aspect-[4/3] bg-muted" />
-                <div className="p-5 space-y-3">
-                  <div className="h-4 bg-muted rounded w-3/4" />
-                  <div className="h-4 bg-muted rounded w-1/2" />
-                  <div className="h-4 bg-muted rounded w-full" />
-                </div>
+          {/* Commercial Tab */}
+          <TabsContent value="commercial" className="space-y-10">
+            {/* Featured Projects */}
+            <section>
+              <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
+                <span className="w-1 h-8 bg-accent rounded-full"></span>
+                Featured Projects
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredProjects.map((item) => (
+                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
+                ))}
               </div>
-            ))}
-          </div>
-        ) : filteredProperties.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <Filter className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No properties found</h3>
-            <p className="text-muted-foreground mb-4">Try adjusting your search or filters</p>
-            <Button variant="outline" onClick={clearFilters}>
-              Clear Filters
-            </Button>
-          </div>
-        )}
+            </section>
+
+            {/* Retail Shops & Society Shops */}
+            <section>
+              <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
+                <span className="w-1 h-8 bg-accent rounded-full"></span>
+                Retail Shops & Society Shops
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {retailShops.map((item) => (
+                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
+                ))}
+              </div>
+            </section>
+
+            {/* Generic Categories */}
+            <section>
+              <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
+                <span className="w-1 h-8 bg-accent rounded-full"></span>
+                Other Commercial Spaces
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {genericCommercial.map((item) => (
+                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
+                ))}
+              </div>
+            </section>
+          </TabsContent>
+
+          {/* Residential Tab */}
+          <TabsContent value="residential" className="space-y-10">
+            {/* Villas & Apartments */}
+            <section>
+              <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
+                <span className="w-1 h-8 bg-accent rounded-full"></span>
+                Villas & Apartments
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {villasApartments.map((item) => (
+                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
+                ))}
+              </div>
+            </section>
+
+            {/* Plots */}
+            <section>
+              <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
+                <span className="w-1 h-8 bg-accent rounded-full"></span>
+                Plots
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {plots.map((item) => (
+                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
+                ))}
+              </div>
+            </section>
+          </TabsContent>
+        </Tabs>
       </div>
+
+      <LeadCaptureModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        type="query"
+        propertyName={selectedProperty}
+      />
     </PublicLayout>
   );
 };
