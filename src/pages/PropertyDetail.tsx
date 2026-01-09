@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import PublicLayout from '@/components/layout/PublicLayout';
 import LeadCaptureModal from '@/components/property/LeadCaptureModal';
-import MarketTrendChart from '@/components/property/MarketTrendChart';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { properties, Property } from '@/data/mockData';
@@ -156,8 +156,6 @@ const PropertyDetail: React.FC = () => {
               </div>
             </div>
 
-            {/* Market Trend */}
-            <MarketTrendChart />
           </div>
 
           {/* Sidebar */}

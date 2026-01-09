@@ -5,25 +5,25 @@ import { Link } from 'react-router-dom';
 
 const slides = [
   {
-    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80',
-    title: 'Find Your Dream Home',
-    subtitle: 'Premium Residential Properties',
-    location: 'Greater Noida',
-    propertyId: '1',
+    image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1920&q=80',
+    title: 'Nirala Gateway',
+    subtitle: 'Premium Commercial Hub in Greater Noida',
+    location: 'Techzone 4, Greater Noida',
+    propertyId: 'nirala-gateway',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1577412647305-991150c7d163?w=1920&q=80',
+    title: 'Diadem',
+    subtitle: 'Luxury Living Redefined',
+    location: 'Greater Noida West',
+    propertyId: 'diadem',
   },
   {
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80',
-    title: 'Prime Commercial Spaces',
-    subtitle: 'Invest in the Future',
-    location: 'Greater Noida',
-    propertyId: '4',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1920&q=80',
-    title: 'Luxury Living Awaits',
-    subtitle: 'Modern Architecture & Design',
-    location: 'Greater Noida',
-    propertyId: '2',
+    title: 'Bhutani Astrathum',
+    subtitle: 'Premium Commercial & Retail Space',
+    location: 'Sector 12, Greater Noida',
+    propertyId: 'bhutani-astrathum',
   },
 ];
 
@@ -44,19 +44,23 @@ const HeroCarousel: React.FC = () => {
     <section className="relative h-[70vh] md:h-[85vh] overflow-hidden">
       {/* Slides */}
       {slides.map((slide, index) => (
-        <Link
+        <div
           key={index}
-          to={`/property/${slide.propertyId}`}
-          className={`absolute inset-0 transition-opacity duration-1000 cursor-pointer ${
+          className={`absolute inset-0 transition-opacity duration-1000 ${
             index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${slide.image})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-transparent" />
-        </Link>
+          <Link
+            to={`/property/${slide.propertyId}`}
+            className="block absolute inset-0 cursor-pointer"
+          >
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${slide.image})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-transparent" />
+          </Link>
+        </div>
       ))}
 
       {/* Content */}
