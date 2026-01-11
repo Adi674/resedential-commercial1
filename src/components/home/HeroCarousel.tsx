@@ -41,7 +41,7 @@ const HeroCarousel: React.FC = () => {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
-    <section className="relative h-[70vh] md:h-[85vh] overflow-hidden">
+    <section className="relative h-[60vh] sm:h-[70vh] md:h-[85vh] overflow-hidden">
       {/* Slides */}
       {slides.map((slide, index) => (
         <div
@@ -64,28 +64,28 @@ const HeroCarousel: React.FC = () => {
       ))}
 
       {/* Content */}
-      <div className="relative h-full container mx-auto px-4 flex items-center">
+      <div className="relative h-full container mx-auto px-4 sm:px-6 flex items-center">
         <div className="max-w-2xl text-card animate-slide-up">
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin className="w-5 h-5 text-accent" />
-            <span className="text-accent font-medium">{slides[currentSlide].location}</span>
+          <div className="flex items-center gap-2 mb-2 sm:mb-4">
+            <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+            <span className="text-accent font-medium text-sm sm:text-base">{slides[currentSlide].location}</span>
           </div>
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+          <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-4 leading-tight">
             {slides[currentSlide].title}
           </h1>
-          <p className="text-xl md:text-2xl text-card/80 mb-8">
+          <p className="text-base sm:text-xl md:text-2xl text-card/80 mb-4 sm:mb-8">
             {slides[currentSlide].subtitle}
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Link to="/listings?type=residential">
-              <Button className="btn-hero gap-2">
-                <Home className="w-5 h-5" />
+              <Button className="btn-hero gap-2 w-full sm:w-auto text-sm sm:text-base">
+                <Home className="w-4 h-4 sm:w-5 sm:h-5" />
                 Residential
               </Button>
             </Link>
             <Link to="/listings?type=commercial">
-              <Button variant="outline" className="bg-transparent border-card text-card hover:bg-card hover:text-foreground gap-2">
-                <Building className="w-5 h-5" />
+              <Button variant="outline" className="bg-transparent border-card text-card hover:bg-card hover:text-foreground gap-2 w-full sm:w-auto text-sm sm:text-base">
+                <Building className="w-4 h-4 sm:w-5 sm:h-5" />
                 Commercial
               </Button>
             </Link>
@@ -96,26 +96,26 @@ const HeroCarousel: React.FC = () => {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card/20 backdrop-blur-sm flex items-center justify-center text-card hover:bg-card/40 transition-colors"
+        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-card/20 backdrop-blur-sm flex items-center justify-center text-card hover:bg-card/40 transition-colors"
       >
-        <ChevronLeft className="w-6 h-6" />
+        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card/20 backdrop-blur-sm flex items-center justify-center text-card hover:bg-card/40 transition-colors"
+        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-card/20 backdrop-blur-sm flex items-center justify-center text-card hover:bg-card/40 transition-colors"
       >
-        <ChevronRight className="w-6 h-6" />
+        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all ${
+            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all ${
               index === currentSlide
-                ? 'bg-accent w-8'
+                ? 'bg-accent w-6 sm:w-8'
                 : 'bg-card/50 hover:bg-card/70'
             }`}
           />

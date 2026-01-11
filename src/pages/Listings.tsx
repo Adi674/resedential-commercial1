@@ -35,36 +35,36 @@ const ListingCard: React.FC<ListingCardProps> = ({ item, onContactClick }) => {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           {item.subcategory && (
-            <Badge className="absolute top-3 left-3 bg-primary/90">
+            <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-primary/90 text-xs">
               {item.subcategory}
             </Badge>
           )}
         </div>
       )}
-      <CardContent className="p-4">
-        <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+      <CardContent className="p-3 sm:p-4">
+        <h3 className="font-semibold text-base sm:text-lg mb-1 sm:mb-2">{item.title}</h3>
         {item.location && (
-          <p className="text-muted-foreground text-sm flex items-center gap-1 mb-2">
-            <MapPin className="w-4 h-4" />
+          <p className="text-muted-foreground text-xs sm:text-sm flex items-center gap-1 mb-1 sm:mb-2">
+            <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
             {item.location}
           </p>
         )}
         {item.specs && (
-          <p className="text-muted-foreground text-sm flex items-center gap-1 mb-3">
-            <Ruler className="w-4 h-4" />
+          <p className="text-muted-foreground text-xs sm:text-sm flex items-center gap-1 mb-2 sm:mb-3">
+            <Ruler className="w-3 h-3 sm:w-4 sm:h-4" />
             {item.specs}
           </p>
         )}
         {item.hasDetailPage && item.propertyId ? (
           <Link to={`/property/${item.propertyId}`}>
-            <Button className="w-full">{buttonText}</Button>
+            <Button className="w-full text-sm">{buttonText}</Button>
           </Link>
         ) : showContactButton ? (
           <Button 
-            className="w-full gap-2" 
+            className="w-full gap-2 text-sm" 
             onClick={() => onContactClick(item.title)}
           >
-            <Phone className="w-4 h-4" />
+            <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
             {buttonText}
           </Button>
         ) : null}
@@ -96,39 +96,39 @@ const Listings: React.FC = () => {
 
   return (
     <PublicLayout>
-      <div className="bg-primary py-16 md:py-20">
-        <div className="container mx-auto px-4">
-          <h1 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground text-center mb-4">
+      <div className="bg-primary py-10 sm:py-16 md:py-20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary-foreground text-center mb-2 sm:mb-4">
             Explore Properties
           </h1>
-          <p className="text-primary-foreground/80 text-center max-w-2xl mx-auto">
+          <p className="text-primary-foreground/80 text-center max-w-2xl mx-auto text-sm sm:text-base">
             Find your perfect property in Greater Noida from our extensive collection of residential and commercial spaces
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
-            <TabsTrigger value="commercial" className="gap-2">
-              <Building className="w-4 h-4" />
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6 sm:mb-8">
+            <TabsTrigger value="commercial" className="gap-1.5 sm:gap-2 text-sm sm:text-base">
+              <Building className="w-3 h-3 sm:w-4 sm:h-4" />
               Commercial
             </TabsTrigger>
-            <TabsTrigger value="residential" className="gap-2">
-              <Home className="w-4 h-4" />
+            <TabsTrigger value="residential" className="gap-1.5 sm:gap-2 text-sm sm:text-base">
+              <Home className="w-3 h-3 sm:w-4 sm:h-4" />
               Residential
             </TabsTrigger>
           </TabsList>
 
           {/* Commercial Tab */}
-          <TabsContent value="commercial" className="space-y-10">
+          <TabsContent value="commercial" className="space-y-8 sm:space-y-10">
             {/* Featured Projects */}
             <section>
-              <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
-                <span className="w-1 h-8 bg-accent rounded-full"></span>
+              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
+                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
                 Featured Projects
               </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {featuredProjects.map((item) => (
                   <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
                 ))}
@@ -137,11 +137,11 @@ const Listings: React.FC = () => {
 
             {/* Retail Shops & Society Shops */}
             <section>
-              <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
-                <span className="w-1 h-8 bg-accent rounded-full"></span>
+              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
+                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
                 Retail Shops & Society Shops
               </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {retailShops.map((item) => (
                   <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
                 ))}
@@ -150,11 +150,11 @@ const Listings: React.FC = () => {
 
             {/* Generic Categories */}
             <section>
-              <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
-                <span className="w-1 h-8 bg-accent rounded-full"></span>
+              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
+                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
                 Other Commercial Spaces
               </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {genericCommercial.map((item) => (
                   <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
                 ))}
@@ -163,14 +163,14 @@ const Listings: React.FC = () => {
           </TabsContent>
 
           {/* Residential Tab */}
-          <TabsContent value="residential" className="space-y-10">
+          <TabsContent value="residential" className="space-y-8 sm:space-y-10">
             {/* Villas & Apartments */}
             <section>
-              <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
-                <span className="w-1 h-8 bg-accent rounded-full"></span>
+              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
+                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
                 Villas & Apartments
               </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {villasApartments.map((item) => (
                   <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
                 ))}
@@ -179,11 +179,11 @@ const Listings: React.FC = () => {
 
             {/* Plots */}
             <section>
-              <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
-                <span className="w-1 h-8 bg-accent rounded-full"></span>
+              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
+                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
                 Plots
               </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {plots.map((item) => (
                   <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
                 ))}

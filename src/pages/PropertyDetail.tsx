@@ -76,80 +76,80 @@ const PropertyDetail: React.FC = () => {
 
   return (
     <PublicLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Back Button */}
         <Link
           to="/listings"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 sm:mb-6 transition-colors text-sm sm:text-base"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Listings
         </Link>
 
         {/* Hero Image */}
-        <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-2xl overflow-hidden mb-8">
+        <div className="relative aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] rounded-xl sm:rounded-2xl overflow-hidden mb-6 sm:mb-8">
           <img
             src={property.image}
             alt={property.name}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-          <div className="absolute bottom-6 left-6 right-6">
-            <div className="flex gap-2 mb-3">
-              <Badge className={property.type === 'Residential' ? 'bg-primary' : 'bg-accent text-accent-foreground'}>
+          <div className="absolute bottom-3 left-3 right-3 sm:bottom-6 sm:left-6 sm:right-6">
+            <div className="flex gap-2 mb-2 sm:mb-3">
+              <Badge className={`text-xs ${property.type === 'Residential' ? 'bg-primary' : 'bg-accent text-accent-foreground'}`}>
                 {property.type}
               </Badge>
-              <Badge variant="secondary" className="bg-card/90 text-foreground">
+              <Badge variant="secondary" className="bg-card/90 text-foreground text-xs">
                 {property.status}
               </Badge>
             </div>
-            <h1 className="font-serif text-3xl md:text-4xl font-bold text-card mb-2">
+            <h1 className="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-card mb-1 sm:mb-2">
               {property.name}
             </h1>
-            <div className="flex items-center gap-1 text-card/80">
-              <MapPin className="w-5 h-5" />
+            <div className="flex items-center gap-1 text-card/80 text-sm sm:text-base">
+              <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
               {property.location}
             </div>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Key Details */}
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h2 className="font-semibold text-xl mb-4">Property Details</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-card rounded-xl border border-border p-4 sm:p-6">
+              <h2 className="font-semibold text-lg sm:text-xl mb-3 sm:mb-4">Property Details</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 {property.bedrooms && (
-                  <div className="text-center p-4 rounded-lg bg-muted/50">
-                    <Bed className="w-6 h-6 text-primary mx-auto mb-2" />
-                    <div className="font-semibold">{property.bedrooms} Bedrooms</div>
+                  <div className="text-center p-3 sm:p-4 rounded-lg bg-muted/50">
+                    <Bed className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
+                    <div className="font-semibold text-sm sm:text-base">{property.bedrooms} Bedrooms</div>
                   </div>
                 )}
                 {property.bathrooms && (
-                  <div className="text-center p-4 rounded-lg bg-muted/50">
-                    <Bath className="w-6 h-6 text-primary mx-auto mb-2" />
-                    <div className="font-semibold">{property.bathrooms} Bathrooms</div>
+                  <div className="text-center p-3 sm:p-4 rounded-lg bg-muted/50">
+                    <Bath className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
+                    <div className="font-semibold text-sm sm:text-base">{property.bathrooms} Bathrooms</div>
                   </div>
                 )}
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <Square className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <div className="font-semibold">{property.area}</div>
+                <div className="text-center p-3 sm:p-4 rounded-lg bg-muted/50">
+                  <Square className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
+                  <div className="font-semibold text-sm sm:text-base">{property.area}</div>
                 </div>
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <Building className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <div className="font-semibold">{property.developer}</div>
+                <div className="text-center p-3 sm:p-4 rounded-lg bg-muted/50">
+                  <Building className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
+                  <div className="font-semibold text-sm sm:text-base">{property.developer}</div>
                 </div>
               </div>
             </div>
 
             {/* Amenities */}
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h2 className="font-semibold text-xl mb-4">Amenities</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="bg-card rounded-xl border border-border p-4 sm:p-6">
+              <h2 className="font-semibold text-lg sm:text-xl mb-3 sm:mb-4">Amenities</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                 {property.amenities.map((amenity, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                  <div key={index} className="flex items-center gap-2 text-xs sm:text-sm">
+                    <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-primary flex-shrink-0" />
                     {amenity}
                   </div>
                 ))}
@@ -159,20 +159,20 @@ const PropertyDetail: React.FC = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Price Card */}
-            <div className="bg-card rounded-xl border border-border p-6 sticky top-24">
-              <div className="mb-4">
-                <div className="text-sm text-muted-foreground">Price Range</div>
-                <div className="text-2xl font-bold text-primary">{property.price}</div>
-                <div className="text-sm text-muted-foreground">
+            <div className="bg-card rounded-xl border border-border p-4 sm:p-6 lg:sticky lg:top-24">
+              <div className="mb-3 sm:mb-4">
+                <div className="text-xs sm:text-sm text-muted-foreground">Price Range</div>
+                <div className="text-xl sm:text-2xl font-bold text-primary">{property.price}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   ₹{property.pricePerSqFt.toLocaleString()}/sq.ft
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 <Button
-                  className="w-full btn-hero"
+                  className="w-full btn-hero text-sm sm:text-base"
                   onClick={() => setModalType('brochure')}
                 >
                   <Download className="w-4 h-4 mr-2" />
@@ -180,7 +180,7 @@ const PropertyDetail: React.FC = () => {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full text-sm sm:text-base"
                   onClick={() => setModalType('query')}
                 >
                   <Phone className="w-4 h-4 mr-2" />
@@ -188,8 +188,8 @@ const PropertyDetail: React.FC = () => {
                 </Button>
               </div>
 
-              <div className="mt-6 pt-6 border-t border-border">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground mb-2">
                   <Calendar className="w-4 h-4" />
                   <span>
                     {property.status === 'Ready to Move' 
