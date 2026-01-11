@@ -82,38 +82,39 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
             {type === 'brochure' ? (
               <>
-                <Download className="w-5 h-5 text-primary" />
+                <Download className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 Download Brochure
               </>
             ) : (
               <>
-                <Phone className="w-5 h-5 text-primary" />
+                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 Have a Query?
               </>
             )}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name *</Label>
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="name" className="text-sm">Full Name *</Label>
             <Input
               id="name"
               placeholder="Enter your name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
+              className="text-sm sm:text-base"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="phone">Mobile Number *</Label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="phone" className="text-sm">Mobile Number *</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -121,28 +122,30 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="budget">Budget *</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="budget" className="text-sm">Budget *</Label>
               <Input
                 id="budget"
                 placeholder="e.g., ₹50 L - ₹1 Cr"
                 value={formData.budget}
                 onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Type of Property *</Label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label className="text-sm">Type of Property *</Label>
               <Select
                 value={formData.propertyType}
                 onValueChange={(value) => setFormData({ ...formData, propertyType: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-sm sm:text-base">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -151,13 +154,13 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Type of User *</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label className="text-sm">Type of User *</Label>
               <Select
                 value={formData.userType}
                 onValueChange={(value) => setFormData({ ...formData, userType: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-sm sm:text-base">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -168,13 +171,13 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>How did you hear about us?</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label className="text-sm">How did you hear about us?</Label>
             <Select
               value={formData.source}
               onValueChange={(value) => setFormData({ ...formData, source: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="text-sm sm:text-base">
                 <SelectValue placeholder="Select source" />
               </SelectTrigger>
               <SelectContent>
@@ -188,13 +191,14 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
           </div>
 
           {type === 'query' && (
-            <div className="space-y-2">
-              <Label htmlFor="preferredTime">Preferred Time to Call</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="preferredTime" className="text-sm">Preferred Time to Call</Label>
               <Input
                 id="preferredTime"
                 placeholder="e.g., Weekdays 2-5 PM"
                 value={formData.preferredTime}
                 onChange={(e) => setFormData({ ...formData, preferredTime: e.target.value })}
+                className="text-sm sm:text-base"
               />
             </div>
           )}

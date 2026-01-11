@@ -9,10 +9,10 @@ const FloatingQueryCTA: React.FC = () => {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center group animate-pulse hover:animate-none"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center group animate-pulse hover:animate-none"
         aria-label="Query Us"
       >
-        <Phone className="w-6 h-6 group-hover:scale-110 transition-transform" />
+        <Phone className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
       </button>
       
       <LeadCaptureModal
