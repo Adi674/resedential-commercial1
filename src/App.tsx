@@ -10,8 +10,14 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Listings from "./pages/Listings";
 import PropertyDetail from "./pages/PropertyDetail";
+import CategoryListings from "./pages/CategoryListings";
+import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+
+// Admin Pages
+import AdminLogin from "./pages/admin/AdminLogin";
+import AddListing from "./pages/admin/AddListing";
 
 // Dashboard Pages
 import TeamDashboard from "./pages/dashboard/TeamDashboard";
@@ -36,7 +42,20 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/listings" element={<Listings />} />
             <Route path="/property/:id" element={<PropertyDetail />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
+            
+            {/* Category Routes */}
+            <Route path="/residential" element={<CategoryListings />} />
+            <Route path="/commercial" element={<CategoryListings />} />
+            <Route path="/plots" element={<CategoryListings />} />
+            <Route path="/villas" element={<CategoryListings />} />
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AddListing />} />
+            <Route path="/admin/add-listing" element={<AddListing />} />
 
             {/* Team Dashboard Routes */}
             <Route
@@ -66,7 +85,7 @@ const App = () => (
 
             {/* Admin Dashboard Routes */}
             <Route
-              path="/admin"
+              path="/admin/overview"
               element={
                 <ProtectedRoute requiredRole="admin">
                   <AdminDashboard />

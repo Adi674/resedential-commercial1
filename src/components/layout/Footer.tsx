@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Building2, Phone, Mail, MapPin, Youtube, Facebook, Instagram, Linkedin } from 'lucide-react';
+import ContactForm from '@/components/forms/ContactForm';
 
 const Footer: React.FC = () => {
   return (
     <footer className="bg-foreground text-background">
       <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Company Info */}
-          <div className="space-y-4 sm:col-span-2 lg:col-span-1">
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-primary flex items-center justify-center">
                 <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
@@ -34,18 +35,28 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/listings" className="text-background/70 hover:text-primary transition-colors text-sm">
-                  All Properties
-                </Link>
-              </li>
-              <li>
-                <Link to="/listings?type=residential" className="text-background/70 hover:text-primary transition-colors text-sm">
+                <Link to="/residential" className="text-background/70 hover:text-primary transition-colors text-sm">
                   Residential
                 </Link>
               </li>
               <li>
-                <Link to="/listings?type=commercial" className="text-background/70 hover:text-primary transition-colors text-sm">
+                <Link to="/commercial" className="text-background/70 hover:text-primary transition-colors text-sm">
                   Commercial
+                </Link>
+              </li>
+              <li>
+                <Link to="/plots" className="text-background/70 hover:text-primary transition-colors text-sm">
+                  Plots
+                </Link>
+              </li>
+              <li>
+                <Link to="/villas" className="text-background/70 hover:text-primary transition-colors text-sm">
+                  Villas
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-background/70 hover:text-primary transition-colors text-sm">
+                  Contact Us
                 </Link>
               </li>
             </ul>
@@ -68,47 +79,54 @@ const Footer: React.FC = () => {
                 <span className="text-xs sm:text-sm">info@primeestates.in</span>
               </li>
             </ul>
+            
+            {/* Social Links */}
+            <div className="mt-4">
+              <p className="text-background/70 text-xs sm:text-sm mb-3">
+                Follow us on social media
+              </p>
+              <div className="flex gap-2 sm:gap-3">
+                <a
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
+                >
+                  <Youtube className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
           </div>
 
-          {/* YouTube & Social */}
+          {/* Contact Form */}
           <div>
-            <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Follow Us</h3>
-            <p className="text-background/70 text-xs sm:text-sm mb-4">
-              Watch our property tours and market insights on YouTube!
-            </p>
-            <div className="flex gap-2 sm:gap-3">
-              <a
-                href="https://youtube.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
-              >
-                <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
-              >
-                <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
-              >
-                <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
-              >
-                <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
-              </a>
+            <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Send a Message</h3>
+            <div className="bg-card text-foreground rounded-lg p-4">
+              <ContactForm source="Footer" compact />
             </div>
           </div>
         </div>
