@@ -1,13 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Building2, Phone, Mail, MapPin, Youtube, Facebook, Instagram, Linkedin } from 'lucide-react';
-import ContactForm from '@/components/forms/ContactForm';
 
 const Footer: React.FC = () => {
   return (
     <footer className="bg-foreground text-background">
       <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
@@ -32,6 +31,11 @@ const Footer: React.FC = () => {
               <li>
                 <Link to="/" className="text-background/70 hover:text-primary transition-colors text-sm">
                   Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/listings" className="text-background/70 hover:text-primary transition-colors text-sm">
+                  All Listings
                 </Link>
               </li>
               <li>
@@ -119,14 +123,6 @@ const Footer: React.FC = () => {
                   <Linkedin className="w-4 h-4" />
                 </a>
               </div>
-            </div>
-          </div>
-
-          {/* Contact Form */}
-          <div>
-            <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Send a Message</h3>
-            <div className="bg-card text-foreground rounded-lg p-4">
-              <ContactForm source="Footer" compact />
             </div>
           </div>
         </div>

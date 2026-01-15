@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Building, Home, MapPin, Ruler, Phone } from 'lucide-react';
+import { Building, Home, MapPin, Ruler, Phone, Map, Star } from 'lucide-react';
 import PublicLayout from '@/components/layout/PublicLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -75,7 +75,7 @@ const ListingCard: React.FC<ListingCardProps> = ({ item, onContactClick }) => {
 
 const Listings: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get('type') === 'residential' ? 'residential' : 'commercial';
+  const initialTab = searchParams.get('type') || 'residential';
   const [activeTab, setActiveTab] = useState(initialTab);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState('');
@@ -102,23 +102,47 @@ const Listings: React.FC = () => {
             Explore Properties
           </h1>
           <p className="text-primary-foreground/80 text-center max-w-2xl mx-auto text-sm sm:text-base">
-            Find your perfect property in Greater Noida from our extensive collection of residential and commercial spaces
+            Find your perfect property in Greater Noida from our extensive collection
           </p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6 sm:mb-8">
-            <TabsTrigger value="commercial" className="gap-1.5 sm:gap-2 text-sm sm:text-base">
-              <Building className="w-3 h-3 sm:w-4 sm:h-4" />
-              Commercial
-            </TabsTrigger>
-            <TabsTrigger value="residential" className="gap-1.5 sm:gap-2 text-sm sm:text-base">
+          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-2 sm:grid-cols-4 mb-6 sm:mb-8 h-auto">
+            <TabsTrigger value="residential" className="gap-1.5 sm:gap-2 text-xs sm:text-sm py-2">
               <Home className="w-3 h-3 sm:w-4 sm:h-4" />
               Residential
             </TabsTrigger>
+            <TabsTrigger value="commercial" className="gap-1.5 sm:gap-2 text-xs sm:text-sm py-2">
+              <Building className="w-3 h-3 sm:w-4 sm:h-4" />
+              Commercial
+            </TabsTrigger>
+            <TabsTrigger value="plots" className="gap-1.5 sm:gap-2 text-xs sm:text-sm py-2">
+              <Map className="w-3 h-3 sm:w-4 sm:h-4" />
+              Plots
+            </TabsTrigger>
+            <TabsTrigger value="villas" className="gap-1.5 sm:gap-2 text-xs sm:text-sm py-2">
+              <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+              Villas
+            </TabsTrigger>
           </TabsList>
+
+          {/* Residential Tab */}
+          <TabsContent value="residential" className="space-y-8 sm:space-y-10">
+            {/* Villas & Apartments */}
+            <section>
+              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
+                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
+                Apartments & Residential Properties
+              </h2>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {villasApartments.map((item) => (
+                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
+                ))}
+              </div>
+            </section>
+          </TabsContent>
 
           {/* Commercial Tab */}
           <TabsContent value="commercial" className="space-y-8 sm:space-y-10">
@@ -162,29 +186,30 @@ const Listings: React.FC = () => {
             </section>
           </TabsContent>
 
-          {/* Residential Tab */}
-          <TabsContent value="residential" className="space-y-8 sm:space-y-10">
-            {/* Villas & Apartments */}
+          {/* Plots Tab */}
+          <TabsContent value="plots" className="space-y-8 sm:space-y-10">
             <section>
               <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
                 <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
-                Villas & Apartments
+                Plots & Land
               </h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {villasApartments.map((item) => (
+                {plots.map((item) => (
                   <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
                 ))}
               </div>
             </section>
+          </TabsContent>
 
-            {/* Plots */}
+          {/* Villas Tab */}
+          <TabsContent value="villas" className="space-y-8 sm:space-y-10">
             <section>
               <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
                 <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
-                Plots
+                Luxury Villas
               </h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {plots.map((item) => (
+                {villasApartments.filter(item => item.title.toLowerCase().includes('villa') || item.title.toLowerCase().includes('duplex')).map((item) => (
                   <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
                 ))}
               </div>

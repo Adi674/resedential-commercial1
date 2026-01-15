@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Building2, Menu, X, LogIn, Home, Building, Map, Star } from 'lucide-react';
+import { Building2, Menu, X, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -9,11 +9,8 @@ const Navbar: React.FC = () => {
   const location = useLocation();
 
   const navLinks = [
-    { name: 'Home', path: '/', icon: null },
-    { name: 'Residential', path: '/residential', icon: <Home className="w-4 h-4" /> },
-    { name: 'Commercial', path: '/commercial', icon: <Building className="w-4 h-4" /> },
-    { name: 'Plots', path: '/plots', icon: <Map className="w-4 h-4" /> },
-    { name: 'Villas', path: '/villas', icon: <Star className="w-4 h-4" /> },
+    { name: 'Home', path: '/' },
+    { name: 'Listings', path: '/listings' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -40,11 +37,10 @@ const Navbar: React.FC = () => {
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  'nav-link text-sm flex items-center gap-1.5',
+                  'nav-link text-sm',
                   isActive(link.path) && 'text-primary font-semibold'
                 )}
               >
-                {link.icon}
                 {link.name}
               </Link>
             ))}
@@ -78,12 +74,11 @@ const Navbar: React.FC = () => {
                   key={link.path}
                   to={link.path}
                   className={cn(
-                    'nav-link py-2 flex items-center gap-2',
+                    'nav-link py-2',
                     isActive(link.path) && 'text-primary font-semibold'
                   )}
                   onClick={() => setIsOpen(false)}
                 >
-                  {link.icon}
                   {link.name}
                 </Link>
               ))}

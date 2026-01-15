@@ -16,7 +16,6 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
 // Admin Pages
-import AdminLogin from "./pages/admin/AdminLogin";
 import AddListing from "./pages/admin/AddListing";
 
 // Dashboard Pages
@@ -51,11 +50,31 @@ const App = () => (
             <Route path="/plots" element={<CategoryListings />} />
             <Route path="/villas" element={<CategoryListings />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AddListing />} />
-            <Route path="/admin/add-listing" element={<AddListing />} />
+            {/* Admin Routes - Protected */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/add-listing"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AddListing />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Team Dashboard Routes */}
             <Route
