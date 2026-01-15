@@ -1,12 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Bed, Bath, Square, ArrowRight } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, ArrowRight, Home, Building, Map, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { properties } from '@/data/mockData';
 
+type CategoryType = 'all' | 'Residential' | 'Commercial' | 'Plot' | 'Villa';
+
+const categories = [
+  { id: 'Residential' as CategoryType, label: 'Residential', icon: <Home className="w-4 h-4" />, path: '/residential' },
+  { id: 'Commercial' as CategoryType, label: 'Commercial', icon: <Building className="w-4 h-4" />, path: '/commercial' },
+  { id: 'Plot' as CategoryType, label: 'Plots', icon: <Map className="w-4 h-4" />, path: '/plots' },
+  { id: 'Villa' as CategoryType, label: 'Villas', icon: <Star className="w-4 h-4" />, path: '/villas' },
+];
+
 const FeaturedProperties: React.FC = () => {
-  const featuredProperties = properties.filter((p) => p.featured).slice(0, 3);
+  const [activeCategory, setActiveCategory] = useState<CategoryType>('Residential');
+
+  const filteredProperties = properties.filter((p) => {
+    if (activeCategory === 'all') return p.featured;
+    if (activeCategory === 'Plot' || activeCategory === 'Villa') {
+      // Show residential properties for Plot/Villa as we don't have those types in mock data
+      return p.type === 'Residential' && p.featured;
+    }
+    return p.type === activeCategory && p.featured;
+  }).slice(0, 3);
+
+  // Fallback to all featured if no match
+  const displayProperties = filteredProperties.length > 0 
+    ? filteredProperties 
+    : properties.filter(p => p.featured).slice(0, 3);
 
   return (
     <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
@@ -27,8 +50,27 @@ const FeaturedProperties: React.FC = () => {
           </Link>
         </div>
 
+        {/* Category Tabs */}
+        <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setActiveCategory(category.id)}
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                activeCategory === category.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card border border-border hover:border-primary text-foreground'
+              }`}
+            >
+              {category.icon}
+              <span className="hidden sm:inline">{category.label}</span>
+              <span className="sm:hidden">{category.label.slice(0, 3)}</span>
+            </button>
+          ))}
+        </div>
+
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {featuredProperties.map((property) => (
+          {displayProperties.map((property) => (
             <Link
               key={property.id}
               to={`/property/${property.id}`}
@@ -90,6 +132,16 @@ const FeaturedProperties: React.FC = () => {
               </div>
             </Link>
           ))}
+        </div>
+
+        {/* View More Link */}
+        <div className="text-center mt-8">
+          <Link to={categories.find(c => c.id === activeCategory)?.path || '/listings'}>
+            <Button variant="outline" className="gap-2">
+              View All {activeCategory === 'all' ? '' : categories.find(c => c.id === activeCategory)?.label}
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
