@@ -1,25 +1,68 @@
-import React, { useState } from 'react';
-import { Phone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { MessageSquare, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import LeadCaptureModal from '@/components/property/LeadCaptureModal';
+import { useLocation } from 'react-router-dom';
 
 const FloatingQueryCTA: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const location = useLocation(); // Hook to get current URL
+
+  // Logic to determine if we are on a Property Detail page
+  // URL Format: /property/123-abc-456
+  const isPropertyPage = location.pathname.startsWith('/property/');
+  
+  // Extract Listing ID if we are on a property page
+  const listingId = isPropertyPage 
+    ? location.pathname.split('/')[2] 
+    : null;
+
+  // Show button after scrolling down a bit
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  if (!isVisible) return null;
 
   return (
     <>
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-accent hover:bg-accent/90 text-accent-foreground shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center group animate-pulse hover:animate-none"
-        aria-label="Query Us"
-      >
-        <Phone className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
-      </button>
-      
-      <LeadCaptureModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+      <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        {isOpen ? (
+          <Button
+            size="icon"
+            className="h-12 w-12 rounded-full shadow-lg bg-destructive hover:bg-destructive/90"
+            onClick={() => setIsOpen(false)}
+          >
+            <X className="h-6 w-6" />
+          </Button>
+        ) : (
+          <Button
+            className="h-12 rounded-full shadow-lg gap-2 px-4 animate-bounce-subtle"
+            onClick={() => setIsOpen(true)}
+          >
+            <MessageSquare className="h-5 w-5" />
+            <span className="hidden sm:inline">Enquire Now</span>
+          </Button>
+        )}
+      </div>
+
+      <LeadCaptureModal 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)}
+        // If on property page, pass the ID. Else pass null.
+        listingId={listingId}
+        propertyName={isPropertyPage ? "this property" : undefined}
         type="query"
-        propertyName="General Inquiry"
       />
     </>
   );

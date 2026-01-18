@@ -1,228 +1,210 @@
-import React, { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Building, Home, MapPin, Ruler, Phone, Map, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Building, Home, MapPin, Ruler, Phone, Map, Star, Loader2 } from 'lucide-react';
 import PublicLayout from '@/components/layout/PublicLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import LeadCaptureModal from '@/components/property/LeadCaptureModal';
-import { commercialListings, residentialListings, ListingItem } from '@/data/mockData';
+import { fetchListings, Listing } from '@/services/api';
+
+// --- RESTORED: Dynamic Button Logic ---
+const getButtonText = (category: string, propertyType: string) => {
+  if (propertyType === 'Plot') return 'Enquire Now';
+  if (category === 'generic') return 'Contact for Availability';
+  if (category === 'villas-apartments') return 'Contact for More';
+  return 'View Details';
+};
 
 interface ListingCardProps {
-  item: ListingItem;
-  onContactClick: (title: string) => void;
+  item: Listing;
+  onContactClick: (title: string, id: string) => void;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({ item, onContactClick }) => {
-  const buttonText = item.category === 'plots' 
-    ? 'Enquire Now' 
-    : item.category === 'generic' 
-      ? 'Contact Us for Availability' 
-      : item.category === 'villas-apartments'
-        ? 'Contact Us for More'
-        : 'View Details';
-
-  const showContactButton = !item.hasDetailPage;
+  const buttonText = getButtonText(item.listing_category, item.property_type);
+  // Logic: Plots usually don't have detailed pages in some designs, 
+  // but if you want all to have details, keep this check simple.
+  const showDetailButton = item.property_type !== 'Plot'; 
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
-      {item.image && (
-        <div className="aspect-[4/3] overflow-hidden relative">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow group h-full flex flex-col">
+      <div className="aspect-[4/3] overflow-hidden relative bg-gray-100">
+        {item.image ? (
           <img
             src={item.image}
             alt={item.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
-          {item.subcategory && (
-            <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-primary/90 text-xs">
-              {item.subcategory}
-            </Badge>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-200">No Image</div>
+        )}
+        <Badge className="absolute top-2 left-2 bg-primary/90 text-xs">
+          {item.listing_category || item.property_type}
+        </Badge>
+      </div>
+      <CardContent className="p-4 flex flex-col flex-grow">
+        <h3 className="font-semibold text-lg mb-2 line-clamp-1">{item.title}</h3>
+        <div className="space-y-2 mb-4 flex-grow">
+          {item.location && (
+            <p className="text-muted-foreground text-sm flex items-center gap-2">
+              <MapPin className="w-4 h-4" /> {item.location}
+            </p>
           )}
+          {item.size && (
+            <p className="text-muted-foreground text-sm flex items-center gap-2">
+              <Ruler className="w-4 h-4" /> {item.size}
+            </p>
+          )}
+           {item.price && <p className="text-primary font-bold text-sm">{item.price}</p>}
         </div>
-      )}
-      <CardContent className="p-3 sm:p-4">
-        <h3 className="font-semibold text-base sm:text-lg mb-1 sm:mb-2">{item.title}</h3>
-        {item.location && (
-          <p className="text-muted-foreground text-xs sm:text-sm flex items-center gap-1 mb-1 sm:mb-2">
-            <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
-            {item.location}
-          </p>
-        )}
-        {item.specs && (
-          <p className="text-muted-foreground text-xs sm:text-sm flex items-center gap-1 mb-2 sm:mb-3">
-            <Ruler className="w-3 h-3 sm:w-4 sm:h-4" />
-            {item.specs}
-          </p>
-        )}
-        {item.hasDetailPage && item.propertyId ? (
-          <Link to={`/property/${item.propertyId}`}>
-            <Button className="w-full text-sm">{buttonText}</Button>
-          </Link>
-        ) : showContactButton ? (
-          <Button 
-            className="w-full gap-2 text-sm" 
-            onClick={() => onContactClick(item.title)}
-          >
-            <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
-            {buttonText}
+
+        <div className="mt-auto space-y-2">
+          {showDetailButton && (
+            <Link to={`/property/${item.listing_id}`} className="w-full block">
+               <Button variant="outline" className="w-full">View Details</Button>
+            </Link>
+          )}
+          <Button className="w-full gap-2" onClick={() => onContactClick(item.title, item.listing_id)}>
+            <Phone className="w-4 h-4" /> {buttonText}
           </Button>
-        ) : null}
+        </div>
       </CardContent>
     </Card>
   );
 };
 
 const Listings: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get('type') || 'residential';
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialType = searchParams.get('type') || 'residential';
+  const [activeTab, setActiveTab] = useState(initialType);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState('');
+  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
 
-  const handleContactClick = (title: string) => {
+  useEffect(() => {
+    const loadListings = async () => {
+      setIsLoading(true);
+      try {
+        const apiType = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
+        const data = await fetchListings(apiType);
+        setListings(data);
+      } catch (error) {
+        console.error("Failed to load listings", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    setSearchParams({ type: activeTab });
+    loadListings();
+  }, [activeTab, setSearchParams]);
+
+  const handleContactClick = (title: string, id: string) => {
     setSelectedProperty(title);
+    setSelectedListingId(id); // Store the ID
     setIsModalOpen(true);
   };
 
-  // Group commercial listings
-  const featuredProjects = commercialListings.filter(item => item.category === 'featured-project');
-  const retailShops = commercialListings.filter(item => item.category === 'retail-shops');
-  const genericCommercial = commercialListings.filter(item => item.category === 'generic');
+  // --- RESTORED: Client-Side Grouping Logic ---
+  // This mimics your old mock data categorization
+  const featuredProjects = listings.filter(i => i.listing_category?.toLowerCase().includes('featured'));
+  const retailShops = listings.filter(i => i.listing_category?.toLowerCase().includes('retail'));
+  const otherListings = listings.filter(i => 
+    !i.listing_category?.toLowerCase().includes('featured') && 
+    !i.listing_category?.toLowerCase().includes('retail')
+  );
 
-  // Group residential listings
-  const villasApartments = residentialListings.filter(item => item.category === 'villas-apartments');
-  const plots = residentialListings.filter(item => item.category === 'plots');
+  const categories = [
+    { id: 'residential', label: 'Residential', icon: Home },
+    { id: 'commercial', label: 'Commercial', icon: Building },
+    { id: 'plots', label: 'Plots', icon: Map },
+    { id: 'villas', label: 'Villas', icon: Star },
+  ];
 
   return (
     <PublicLayout>
-      <div className="bg-primary py-10 sm:py-16 md:py-20">
-        <div className="container mx-auto px-4 sm:px-6">
-          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary-foreground text-center mb-2 sm:mb-4">
-            Explore Properties
-          </h1>
-          <p className="text-primary-foreground/80 text-center max-w-2xl mx-auto text-sm sm:text-base">
-            Find your perfect property in Greater Noida from our extensive collection
-          </p>
+      <div className="bg-primary py-10 sm:py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-3xl font-bold text-white mb-4">Explore Properties</h1>
+          <p className="text-white/80">Find your perfect property in Greater Noida</p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-2 sm:grid-cols-4 mb-6 sm:mb-8 h-auto">
-            <TabsTrigger value="residential" className="gap-1.5 sm:gap-2 text-xs sm:text-sm py-2">
-              <Home className="w-3 h-3 sm:w-4 sm:h-4" />
-              Residential
-            </TabsTrigger>
-            <TabsTrigger value="commercial" className="gap-1.5 sm:gap-2 text-xs sm:text-sm py-2">
-              <Building className="w-3 h-3 sm:w-4 sm:h-4" />
-              Commercial
-            </TabsTrigger>
-            <TabsTrigger value="plots" className="gap-1.5 sm:gap-2 text-xs sm:text-sm py-2">
-              <Map className="w-3 h-3 sm:w-4 sm:h-4" />
-              Plots
-            </TabsTrigger>
-            <TabsTrigger value="villas" className="gap-1.5 sm:gap-2 text-xs sm:text-sm py-2">
-              <Star className="w-3 h-3 sm:w-4 sm:h-4" />
-              Villas
-            </TabsTrigger>
+          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-2 sm:grid-cols-4 mb-8">
+            {categories.map((cat) => (
+              <TabsTrigger key={cat.id} value={cat.id} className="gap-2">
+                <cat.icon className="w-4 h-4" /> {cat.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
-          {/* Residential Tab */}
-          <TabsContent value="residential" className="space-y-8 sm:space-y-10">
-            {/* Villas & Apartments */}
-            <section>
-              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
-                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
-                Apartments & Residential Properties
-              </h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {villasApartments.map((item) => (
-                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
-                ))}
-              </div>
-            </section>
-          </TabsContent>
+          <div className="min-h-[300px]">
+            {isLoading ? (
+              <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
+            ) : (
+              <>
+                {/* COMMERCIAL TAB SPECIAL LAYOUT */}
+                {activeTab === 'commercial' && listings.length > 0 ? (
+                  <div className="space-y-10">
+                    {featuredProjects.length > 0 && (
+                      <section>
+                        <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
+                          <span className="w-1 h-8 bg-accent rounded-full"></span> Featured Projects
+                        </h2>
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {featuredProjects.map(item => <ListingCard key={item.listing_id} item={item} onContactClick={handleContactClick} />)}
+                        </div>
+                      </section>
+                    )}
+                    
+                    {retailShops.length > 0 && (
+                      <section>
+                        <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
+                          <span className="w-1 h-8 bg-accent rounded-full"></span> Retail Shops
+                        </h2>
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {retailShops.map(item => <ListingCard key={item.listing_id} item={item} onContactClick={handleContactClick} />)}
+                        </div>
+                      </section>
+                    )}
 
-          {/* Commercial Tab */}
-          <TabsContent value="commercial" className="space-y-8 sm:space-y-10">
-            {/* Featured Projects */}
-            <section>
-              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
-                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
-                Featured Projects
-              </h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {featuredProjects.map((item) => (
-                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
-                ))}
-              </div>
-            </section>
-
-            {/* Retail Shops & Society Shops */}
-            <section>
-              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
-                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
-                Retail Shops & Society Shops
-              </h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {retailShops.map((item) => (
-                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
-                ))}
-              </div>
-            </section>
-
-            {/* Generic Categories */}
-            <section>
-              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
-                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
-                Other Commercial Spaces
-              </h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {genericCommercial.map((item) => (
-                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
-                ))}
-              </div>
-            </section>
-          </TabsContent>
-
-          {/* Plots Tab */}
-          <TabsContent value="plots" className="space-y-8 sm:space-y-10">
-            <section>
-              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
-                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
-                Plots & Land
-              </h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {plots.map((item) => (
-                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
-                ))}
-              </div>
-            </section>
-          </TabsContent>
-
-          {/* Villas Tab */}
-          <TabsContent value="villas" className="space-y-8 sm:space-y-10">
-            <section>
-              <h2 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 flex items-center gap-2">
-                <span className="w-1 h-6 sm:h-8 bg-accent rounded-full"></span>
-                Luxury Villas
-              </h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {villasApartments.filter(item => item.title.toLowerCase().includes('villa') || item.title.toLowerCase().includes('duplex')).map((item) => (
-                  <ListingCard key={item.id} item={item} onContactClick={handleContactClick} />
-                ))}
-              </div>
-            </section>
-          </TabsContent>
+                    {otherListings.length > 0 && (
+                      <section>
+                         <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
+                          <span className="w-1 h-8 bg-accent rounded-full"></span> Commercial Spaces
+                        </h2>
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {otherListings.map(item => <ListingCard key={item.listing_id} item={item} onContactClick={handleContactClick} />)}
+                        </div>
+                      </section>
+                    )}
+                  </div>
+                ) : (
+                  // STANDARD GRID FOR OTHER TABS
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {listings.length > 0 ? (
+                      listings.map(item => <ListingCard key={item.listing_id} item={item} onContactClick={handleContactClick} />)
+                    ) : (
+                      <div className="col-span-full text-center py-12 text-gray-500">No properties found.</div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </Tabs>
       </div>
-
-      <LeadCaptureModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        type="query"
+      <LeadCaptureModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        type="query" 
         propertyName={selectedProperty}
+        listingId={selectedListingId} // ADD THIS PROP
       />
     </PublicLayout>
   );

@@ -33,20 +33,31 @@ export const sanitizePhone = (phone: string): string => {
 // ============================================
 
 export interface Listing {
-  listing_id: string;
+  listing_id: string;      // Backend uses UUID
   title: string;
-  description?: string;
   location: string;
-  type: 'Residential' | 'Commercial' | 'Plot' | 'Villa';
   price: string;
-  area: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  images?: string[];
+  
+  // MATCH BACKEND FIELD NAMES
+  size: string;            // Backend sends "size" (not "area")
+  property_type: 'Residential' | 'Commercial' | 'Plot' | 'Villa'; // Backend sends "property_type"
+  
+  listing_category: string;
   status: string;
-  developer?: string;
+  
+  // Images handling
+  image?: string;          // Backend "ListingCard" sends single thumbnail "image"
+  images?: string[];       // Backend "ListingDetail" sends array "images"
+  
+  description?: string;
   brochure_url?: string;
-  created_at: string;
+  created_at?: string;
+
+  bedrooms?: number;       // Not in DB yet
+  bathrooms?: number;      // Not in DB yet
+  amenities?: string[];    // Not in DB yet
+  developer?: string;      // Not in DB yet
+  price_per_sqft?: number;
 }
 
 export interface LeadQueryPayload {

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { submitLeadQuery, sanitizePhone } from '@/services/api';
+import { submitLeadQuery } from '@/services/api';
 import { Loader2, Send, AlertCircle, CheckCircle } from 'lucide-react';
 
 const contactSchema = z.object({
@@ -23,12 +23,14 @@ interface ContactFormProps {
   source?: string;
   compact?: boolean;
   onSuccess?: () => void;
+  listingId?: string | null; // <--- NEW PROP
 }
 
 const ContactForm: React.FC<ContactFormProps> = ({ 
   source = 'Website', 
   compact = false,
-  onSuccess 
+  onSuccess,
+  listingId = null // Default to null (General Query)
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,12 +49,14 @@ const ContactForm: React.FC<ContactFormProps> = ({
     setIsSubmitting(true);
     setError(null);
 
+    // Pass listingId to the backend (it will handle the rest)
     const response = await submitLeadQuery({
       name: data.name,
       phone: data.phone,
       email: data.email || undefined,
       message: data.message || undefined,
       query_source: source,
+      listing_id: listingId || undefined, // Hidden from user, sent to DB
     });
 
     setIsSubmitting(false);
@@ -61,6 +65,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
       setSuccess(true);
       reset();
       onSuccess?.();
+      // Auto-hide success message after 5 seconds
       setTimeout(() => setSuccess(false), 5000);
     } else {
       setError(response.message || 'Something went wrong. Please try again.');
@@ -86,56 +91,28 @@ const ContactForm: React.FC<ContactFormProps> = ({
       <div className={compact ? 'space-y-3' : 'grid sm:grid-cols-2 gap-4'}>
         <div className="space-y-2">
           <Label htmlFor="name" className="text-sm">Name *</Label>
-          <Input
-            id="name"
-            placeholder="Your name"
-            {...register('name')}
-            className={errors.name ? 'border-destructive' : ''}
-          />
-          {errors.name && (
-            <p className="text-xs text-destructive">{errors.name.message}</p>
-          )}
+          <Input id="name" placeholder="Your name" {...register('name')} className={errors.name ? 'border-destructive' : ''} />
+          {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="phone" className="text-sm">Phone *</Label>
-          <Input
-            id="phone"
-            type="tel"
-            placeholder="Your phone number"
-            {...register('phone')}
-            className={errors.phone ? 'border-destructive' : ''}
-          />
-          {errors.phone && (
-            <p className="text-xs text-destructive">{errors.phone.message}</p>
-          )}
+          <Input id="phone" type="tel" placeholder="Your phone number" {...register('phone')} className={errors.phone ? 'border-destructive' : ''} />
+          {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
         </div>
       </div>
 
       {!compact && (
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm">Email (Optional)</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="your@email.com"
-            {...register('email')}
-            className={errors.email ? 'border-destructive' : ''}
-          />
-          {errors.email && (
-            <p className="text-xs text-destructive">{errors.email.message}</p>
-          )}
+          <Input id="email" type="email" placeholder="your@email.com" {...register('email')} className={errors.email ? 'border-destructive' : ''} />
+          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
         </div>
       )}
 
       <div className="space-y-2">
         <Label htmlFor="message" className="text-sm">Message {compact ? '(Optional)' : ''}</Label>
-        <Textarea
-          id="message"
-          placeholder="Tell us about your requirements..."
-          rows={compact ? 2 : 4}
-          {...register('message')}
-        />
+        <Textarea id="message" placeholder="Tell us about your requirements..." rows={compact ? 2 : 4} {...register('message')} />
       </div>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
