@@ -1,52 +1,53 @@
-import React, { useState } from 'react';
-import { Thermometer, Flame, Sun, Snowflake } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Thermometer, Flame, Sun, Snowflake, Loader2 } from 'lucide-react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ClientTable from '@/components/dashboard/ClientTable';
+import ClientTable, { Client } from '@/components/dashboard/ClientTable';
 import CallLogModal from '@/components/dashboard/CallLogModal';
-import { clients as mockClients, teamMembers, Client, CallLog, callLogs as mockCallLogs } from '@/data/mockData';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/use-toast';
+import { fetchLeads } from '@/services/api';
 
 const AdminSegmentation: React.FC = () => {
-  const [clients, setClients] = useState<Client[]>(mockClients);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isCallLogModalOpen, setIsCallLogModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [callLogs, setCallLogs] = useState<CallLog[]>(mockCallLogs);
+
+  // 1. Fetch Real Data
+  const loadLeads = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchLeads();
+      const formatted = data.map((l: any) => ({
+        id: l.user_id,
+        name: l.name || 'Unknown',
+        phone: l.phone,
+        email: l.email,
+        source: l.lead_source || 'Website',
+        status: l.lead_status || 'New',
+        temperature: l.lead_temperature || 'Cold', // Default if null
+        createdAt: l.created_at,
+        assignedTo: 'Unassigned'
+      }));
+      setClients(formatted);
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to load segmentation data', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { loadLeads(); }, []);
 
   const handleAddCallLog = (client: Client) => {
     setSelectedClient(client);
     setIsCallLogModalOpen(true);
   };
 
-  const handleCallLogSubmit = (log: CallLog) => {
-    setCallLogs([log, ...callLogs]);
-  };
-
-  const handleUpdateTemperature = (clientId: string, temperature: 'Hot' | 'Warm' | 'Cold') => {
-    setClients(
-      clients.map((c) => (c.id === clientId ? { ...c, temperature } : c))
-    );
-    toast({
-      title: 'Status Updated',
-      description: `Client status changed to ${temperature}`,
-    });
-  };
-
-  // Get team member name by ID
-  const getTeamMemberName = (id: string) => {
-    const member = teamMembers.find((m) => m.id === id);
-    return member?.name || id;
-  };
-
-  // Enrich and segment clients
-  const enrichedClients = clients.map((c) => ({
-    ...c,
-    assignedTo: getTeamMemberName(c.assignedTo),
-  }));
-
-  const hotLeads = enrichedClients.filter((c) => c.temperature === 'Hot');
-  const warmLeads = enrichedClients.filter((c) => c.temperature === 'Warm');
-  const coldLeads = enrichedClients.filter((c) => c.temperature === 'Cold');
+  // 2. Dynamic Segmentation Logic (Client-side filtering)
+  const hotLeads = clients.filter((c) => c.temperature === 'Hot');
+  const warmLeads = clients.filter((c) => c.temperature === 'Warm');
+  const coldLeads = clients.filter((c) => c.temperature === 'Cold'); 
 
   const segments = [
     {
@@ -89,15 +90,12 @@ const AdminSegmentation: React.FC = () => {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {segments.map((segment) => (
-            <div
-              key={segment.id}
-              className="bg-card rounded-xl border border-border p-6 flex items-center gap-4"
-            >
+            <div key={segment.id} className="bg-card rounded-xl border border-border p-6 flex items-center gap-4">
               <div className={`w-12 h-12 rounded-lg bg-muted flex items-center justify-center`}>
                 <segment.icon className={`w-6 h-6 ${segment.color}`} />
               </div>
               <div>
-                <div className="text-2xl font-bold">{segment.count}</div>
+                <div className="text-2xl font-bold">{isLoading ? "-" : segment.count}</div>
                 <div className="text-sm text-muted-foreground">{segment.label}</div>
               </div>
             </div>
@@ -110,50 +108,49 @@ const AdminSegmentation: React.FC = () => {
             {segments.map((segment) => (
               <TabsTrigger key={segment.id} value={segment.id} className="flex items-center gap-2">
                 <segment.icon className={`w-4 h-4 ${segment.color}`} />
-                {segment.label} ({segment.count})
+                {segment.label}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {segments.map((segment) => (
-            <TabsContent key={segment.id} value={segment.id}>
-              {segment.clients.length > 0 ? (
-                <ClientTable
-                  clients={segment.clients}
-                  showTeamMember
-                  onAddCallLog={handleAddCallLog}
-                  onUpdateTemperature={handleUpdateTemperature}
-                  isAdmin
-                />
-              ) : (
-                <div className="text-center py-16 bg-card rounded-xl border border-border">
-                  <segment.icon className={`w-12 h-12 mx-auto mb-4 ${segment.color}`} />
-                  <h3 className="font-semibold mb-2">No {segment.label}</h3>
-                  <p className="text-muted-foreground">
-                    Clients with {segment.id} status will appear here
-                  </p>
-                </div>
-              )}
-            </TabsContent>
-          ))}
+          {isLoading ? (
+             <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          ) : (
+            segments.map((segment) => (
+              <TabsContent key={segment.id} value={segment.id}>
+                {segment.clients.length > 0 ? (
+                  <ClientTable
+                    clients={segment.clients}
+                    showTeamMember
+                    onAddCallLog={handleAddCallLog}
+                    isAdmin={true}
+                  />
+                ) : (
+                  <div className="text-center py-16 bg-card rounded-xl border border-border">
+                    <segment.icon className={`w-12 h-12 mx-auto mb-4 ${segment.color}`} />
+                    <h3 className="font-semibold mb-2">No {segment.label}</h3>
+                    <p className="text-muted-foreground">Clients with {segment.id} status will appear here</p>
+                  </div>
+                )}
+              </TabsContent>
+            ))
+          )}
         </Tabs>
       </div>
 
       <CallLogModal
         isOpen={isCallLogModalOpen}
-        onClose={() => {
+        onClose={() => setIsCallLogModalOpen(false)}
+        onSuccess={() => {
           setIsCallLogModalOpen(false);
-          setSelectedClient(null);
+          toast({ title: 'Success', description: 'Log saved.' });
+          loadLeads(); // Refresh data to update dates if needed
         }}
-        onSubmit={handleCallLogSubmit}
-        prefilledData={
-          selectedClient
-            ? {
-                clientId: selectedClient.id,
-                clientName: selectedClient.name,
-                phone: selectedClient.phone,
-              }
-            : undefined
+        prefilledData={selectedClient ? {
+            clientId: selectedClient.id,
+            clientName: selectedClient.name,
+            phone: selectedClient.phone,
+          } : undefined
         }
       />
     </DashboardLayout>

@@ -1,183 +1,172 @@
-import React, { useState } from 'react';
-import { Phone, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { toast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { createCallLog } from '@/services/api'; // Import Real API
+import { Loader2, Save, Phone } from 'lucide-react';
 
+// Validation Schema
+const callLogSchema = z.object({
+  phone: z.string().min(10, 'Phone number is required'),
+  interaction_type: z.string(),
+  notes: z.string().min(1, 'Notes are required'),
+  next_action: z.string().optional(),
+  next_follow_up_date: z.string().optional(),
+  site_visit_status: z.string().optional(),
+});
+
+type CallLogFormData = z.infer<typeof callLogSchema>;
+
+// Corrected Interface matching AdminClients usage
 interface CallLogModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (log: any) => void;
+  onSuccess: () => void; // <--- This fixes the TypeScript error
   prefilledData?: {
+    clientId?: string;
     clientName?: string;
     phone?: string;
-    clientId?: string;
   };
 }
 
-const CallLogModal: React.FC<CallLogModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  prefilledData,
+const CallLogModal: React.FC<CallLogModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onSuccess, 
+  prefilledData 
 }) => {
-  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    phone: prefilledData?.phone || '',
-    clientName: prefilledData?.clientName || '',
-    notes: '',
-    budget: '',
-    siteVisitDiscussed: false,
-    siteVisitTime: '',
-    customQuestions: '',
+  const [error, setError] = useState<string | null>(null);
+
+  const { 
+    register, 
+    handleSubmit, 
+    setValue, 
+    reset, 
+    formState: { errors } 
+  } = useForm<CallLogFormData>({
+    resolver: zodResolver(callLogSchema),
+    defaultValues: {
+      interaction_type: 'Call',
+    }
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Prefill data when modal opens
+  useEffect(() => {
+    if (isOpen && prefilledData) {
+      if (prefilledData.phone) setValue('phone', prefilledData.phone);
+    } else if (!isOpen) {
+      reset();
+      setError(null);
+    }
+  }, [isOpen, prefilledData, setValue, reset]);
+
+  const onSubmit = async (data: CallLogFormData) => {
     setIsSubmitting(true);
+    setError(null);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      // Call Real API
+      const response = await createCallLog({
+        phone: data.phone,
+        interaction_type: data.interaction_type,
+        notes: data.notes,
+        next_action: data.next_action,
+        next_follow_up_date: data.next_follow_up_date || undefined,
+        site_visit_status: data.site_visit_status
+      });
 
-    const newLog = {
-      id: Date.now().toString(),
-      clientId: prefilledData?.clientId || Date.now().toString(),
-      ...formData,
-      createdBy: user?.id,
-      createdByName: user?.name,
-      createdAt: new Date().toISOString(),
-    };
-
-    onSubmit(newLog);
-    toast({
-      title: 'Call Log Added',
-      description: 'The call log has been saved successfully.',
-    });
-
-    setIsSubmitting(false);
-    onClose();
-    setFormData({
-      phone: '',
-      clientName: '',
-      notes: '',
-      budget: '',
-      siteVisitDiscussed: false,
-      siteVisitTime: '',
-      customQuestions: '',
-    });
+      if (response.success) {
+        onSuccess(); // Trigger parent refresh
+      } else {
+        setError(response.message || 'Failed to save log.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
+          <DialogTitle className="flex items-center gap-2">
             <Phone className="w-5 h-5 text-primary" />
-            Add Call Log
+            Log Interaction {prefilledData?.clientName ? `- ${prefilledData.clientName}` : ''}
           </DialogTitle>
         </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number *</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+91 98765 43210"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="clientName">Client Name *</Label>
-              <Input
-                id="clientName"
-                placeholder="Enter client name"
-                value={formData.clientName}
-                onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notes">Call Notes *</Label>
-            <Textarea
-              id="notes"
-              placeholder="Enter detailed notes from the call..."
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              rows={4}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="budget">Budget</Label>
-            <Input
-              id="budget"
-              placeholder="e.g., ₹1.5 Cr"
-              value={formData.budget}
-              onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-            />
-          </div>
-
-          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
-            <div>
-              <Label htmlFor="siteVisit">Site Visit Discussed?</Label>
-              <p className="text-xs text-muted-foreground">Toggle if site visit was discussed</p>
-            </div>
-            <Switch
-              id="siteVisit"
-              checked={formData.siteVisitDiscussed}
-              onCheckedChange={(checked) =>
-                setFormData({ ...formData, siteVisitDiscussed: checked })
-              }
-            />
-          </div>
-
-          {formData.siteVisitDiscussed && (
-            <div className="space-y-2 animate-fade-in">
-              <Label htmlFor="siteVisitTime">Scheduled Site Visit Time</Label>
-              <Input
-                id="siteVisitTime"
-                type="datetime-local"
-                value={formData.siteVisitTime}
-                onChange={(e) => setFormData({ ...formData, siteVisitTime: e.target.value })}
-              />
+        
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
+          {error && (
+            <div className="p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200">
+              {error}
             </div>
           )}
-
-          <div className="space-y-2">
-            <Label htmlFor="customQuestions">Custom Questions/Notes</Label>
-            <Textarea
-              id="customQuestions"
-              placeholder="Any additional questions or specific requirements..."
-              value={formData.customQuestions}
-              onChange={(e) => setFormData({ ...formData, customQuestions: e.target.value })}
-              rows={3}
-            />
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Phone *</Label>
+              <Input 
+                {...register('phone')} 
+                placeholder="9876543210" 
+                className={errors.phone ? "border-red-500" : ""}
+              />
+              {errors.phone && <p className="text-xs text-red-500">{errors.phone.message}</p>}
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Type</Label>
+              <Select onValueChange={(val) => setValue('interaction_type', val)} defaultValue="Call">
+                <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Call">Call</SelectItem>
+                  <SelectItem value="Site Visit">Site Visit</SelectItem>
+                  <SelectItem value="Email">Email</SelectItem>
+                  <SelectItem value="Meeting">Meeting</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div className="pt-4">
+          <div className="space-y-2">
+            <Label>Notes *</Label>
+            <Textarea 
+              {...register('notes')} 
+              placeholder="What was discussed?" 
+              rows={3} 
+              className={errors.notes ? "border-red-500" : ""}
+            />
+            {errors.notes && <p className="text-xs text-red-500">{errors.notes.message}</p>}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Next Action</Label>
+              <Input {...register('next_action')} placeholder="e.g. Call back" />
+            </div>
+            <div className="space-y-2">
+              <Label>Follow-up Date</Label>
+              <Input type="date" {...register('next_follow_up_date')} />
+            </div>
+          </div>
+
+          <div className="pt-2">
             <Button type="submit" className="w-full btn-primary-gradient" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" /> Saving...
                 </>
               ) : (
                 <>
-                  <Phone className="w-4 h-4 mr-2" />
-                  Save Call Log
+                  <Save className="w-4 h-4 mr-2" /> Save Log
                 </>
               )}
             </Button>

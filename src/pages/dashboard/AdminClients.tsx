@@ -1,80 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import ClientTable from '@/components/dashboard/ClientTable';
+import ClientTable, { Client } from '@/components/dashboard/ClientTable';
 import CallLogModal from '@/components/dashboard/CallLogModal';
-import { clients as mockClients, callLogs as mockCallLogs, teamMembers, Client, CallLog } from '@/data/mockData';
-import { toast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Search, Loader2 } from 'lucide-react';
+import { fetchLeads } from '@/services/api';
+import { toast } from '@/components/ui/use-toast';
 
 const AdminClients: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
   const [isCallLogModalOpen, setIsCallLogModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [clients, setClients] = useState<Client[]>(mockClients);
-  const [callLogs, setCallLogs] = useState<CallLog[]>(mockCallLogs);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch Real Data
+  const loadLeads = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchLeads();
+      const formatted = data.map((l: any) => ({
+        id: l.user_id,
+        name: l.name || 'Unknown',
+        phone: l.phone,
+        email: l.email,
+        source: l.lead_source || 'Website',
+        status: l.lead_status || 'New',
+        temperature: l.lead_temperature || 'Warm',
+        createdAt: l.created_at,
+        assignedTo: 'Unassigned'
+      }));
+      setClients(formatted);
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to load leads', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { loadLeads(); }, []);
+
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.phone.includes(searchTerm)
+  );
 
   const handleAddCallLog = (client: Client) => {
     setSelectedClient(client);
     setIsCallLogModalOpen(true);
   };
 
-  const handleCallLogSubmit = (log: CallLog) => {
-    setCallLogs([log, ...callLogs]);
-  };
-
-  const handleUpdateTemperature = (clientId: string, temperature: 'Hot' | 'Warm' | 'Cold') => {
-    setClients(
-      clients.map((c) => (c.id === clientId ? { ...c, temperature } : c))
-    );
-    toast({
-      title: 'Status Updated',
-      description: `Client status changed to ${temperature}`,
-    });
-  };
-
-  // Get team member name by ID
-  const getTeamMemberName = (id: string) => {
-    const member = teamMembers.find((m) => m.id === id);
-    return member?.name || id;
-  };
-
-  // Enrich clients with team member names
-  const enrichedClients = clients.map((c) => ({
-    ...c,
-    assignedTo: getTeamMemberName(c.assignedTo),
-  }));
-
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">All Clients</h1>
-          <p className="text-muted-foreground">Manage all clients across the organization</p>
+        <h1 className="text-2xl font-bold">Client Management</h1>
+
+        <div className="flex items-center gap-4 bg-card p-4 rounded-lg border">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name or phone..."
+              className="pl-8"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
 
-        <ClientTable
-          clients={enrichedClients}
-          showTeamMember
-          onAddCallLog={handleAddCallLog}
-          onUpdateTemperature={handleUpdateTemperature}
-          isAdmin
-        />
+        {isLoading ? (
+          <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+        ) : (
+          <ClientTable
+            clients={filteredClients}
+            showTeamMember={true} 
+            onAddCallLog={handleAddCallLog}
+            isAdmin={true}
+          />
+        )}
       </div>
 
       <CallLogModal
         isOpen={isCallLogModalOpen}
-        onClose={() => {
+        onClose={() => setIsCallLogModalOpen(false)}
+        onSuccess={() => {
           setIsCallLogModalOpen(false);
-          setSelectedClient(null);
+          toast({ title: 'Success', description: 'Log saved successfully' });
+          loadLeads(); 
         }}
-        onSubmit={handleCallLogSubmit}
-        prefilledData={
-          selectedClient
-            ? {
-                clientId: selectedClient.id,
-                clientName: selectedClient.name,
-                phone: selectedClient.phone,
-              }
-            : undefined
-        }
+        prefilledData={selectedClient ? {
+          clientId: selectedClient.id,
+          clientName: selectedClient.name,
+          phone: selectedClient.phone
+        } : undefined}
       />
     </DashboardLayout>
   );

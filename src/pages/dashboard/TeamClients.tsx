@@ -1,67 +1,92 @@
-import React, { useState } from 'react';
-import { Users } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import ClientTable from '@/components/dashboard/ClientTable';
+import ClientTable, { Client } from '@/components/dashboard/ClientTable';
 import CallLogModal from '@/components/dashboard/CallLogModal';
-import { clients as mockClients, callLogs as mockCallLogs, Client, CallLog } from '@/data/mockData';
-import { useAuth } from '@/contexts/AuthContext';
+import { Input } from '@/components/ui/input';
+import { Search, Loader2 } from 'lucide-react';
+import { fetchLeads } from '@/services/api';
+import { toast } from '@/components/ui/use-toast';
 
 const TeamClients: React.FC = () => {
-  const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
   const [isCallLogModalOpen, setIsCallLogModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [callLogs, setCallLogs] = useState<CallLog[]>(mockCallLogs);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Filter clients assigned to this team member
-  const assignedClients = mockClients.filter((c) => c.assignedTo === user?.id);
+  const loadLeads = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchLeads();
+      const formatted = data.map((l: any) => ({
+        id: l.user_id,
+        name: l.name || 'Unknown',
+        phone: l.phone,
+        email: l.email,
+        source: l.lead_source || 'Website',
+        status: l.lead_status || 'New',
+        temperature: l.lead_temperature || 'Warm',
+        createdAt: l.created_at,
+      }));
+      setClients(formatted);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { loadLeads(); }, []);
+
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.phone.includes(searchTerm)
+  );
 
   const handleAddCallLog = (client: Client) => {
     setSelectedClient(client);
     setIsCallLogModalOpen(true);
   };
 
-  const handleCallLogSubmit = (log: CallLog) => {
-    setCallLogs([log, ...callLogs]);
-  };
-
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">My Clients</h1>
-          <p className="text-muted-foreground">Manage your assigned clients</p>
+        <h1 className="text-2xl font-bold">My Leads</h1>
+
+        <div className="flex items-center gap-4 bg-card p-4 rounded-lg border">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search leads..."
+              className="pl-8"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
 
-        {assignedClients.length > 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+        ) : (
           <ClientTable
-            clients={assignedClients}
+            clients={filteredClients}
             onAddCallLog={handleAddCallLog}
           />
-        ) : (
-          <div className="text-center py-16 bg-card rounded-xl border border-border">
-            <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="font-semibold mb-2">No clients assigned</h3>
-            <p className="text-muted-foreground">Clients will appear here once assigned to you</p>
-          </div>
         )}
       </div>
 
       <CallLogModal
         isOpen={isCallLogModalOpen}
-        onClose={() => {
+        onClose={() => setIsCallLogModalOpen(false)}
+        onSuccess={() => {
           setIsCallLogModalOpen(false);
-          setSelectedClient(null);
+          toast({ title: 'Success', description: 'Log saved.' });
         }}
-        onSubmit={handleCallLogSubmit}
-        prefilledData={
-          selectedClient
-            ? {
-                clientId: selectedClient.id,
-                clientName: selectedClient.name,
-                phone: selectedClient.phone,
-              }
-            : undefined
-        }
+        prefilledData={selectedClient ? {
+          clientId: selectedClient.id,
+          clientName: selectedClient.name,
+          phone: selectedClient.phone
+        } : undefined}
       />
     </DashboardLayout>
   );

@@ -8,18 +8,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { loginApi } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext'; // <--- USE CONTEXT
 import { Loader2, Building2, AlertCircle } from 'lucide-react';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  username: z.string().min(1, 'Username is required'), // Backend uses username, not email
+  password: z.string().min(1, 'Password is required'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth(); // Use the hook
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,16 +36,15 @@ const AdminLogin: React.FC = () => {
     setIsSubmitting(true);
     setError(null);
 
-    const response = await loginApi(data.email, data.password);
+    // Call login from AuthContext
+    const result = await login(data.username, data.password);
 
     setIsSubmitting(false);
 
-    if (response.success && response.access_token) {
-      localStorage.setItem('access_token', response.access_token);
-      localStorage.setItem('admin_user', JSON.stringify(response.user));
+    if (result.success) {
       navigate('/admin/dashboard');
     } else {
-      setError(response.message || 'Invalid credentials. Please try again.');
+      setError(result.error || 'Invalid credentials. Please try again.');
     }
   };
 
@@ -57,10 +57,8 @@ const AdminLogin: React.FC = () => {
               <Building2 className="w-7 h-7 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Admin Login</CardTitle>
-          <CardDescription>
-            Sign in to access the admin dashboard
-          </CardDescription>
+          <CardTitle className="text-2xl">System Login</CardTitle>
+          <CardDescription>Sign in to access the dashboard</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -72,17 +70,14 @@ const AdminLogin: React.FC = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="admin@example.com"
-                {...register('email')}
-                className={errors.email ? 'border-destructive' : ''}
+                id="username"
+                placeholder="admin"
+                {...register('username')}
+                className={errors.username ? 'border-destructive' : ''}
               />
-              {errors.email && (
-                <p className="text-xs text-destructive">{errors.email.message}</p>
-              )}
+              {errors.username && <p className="text-xs text-destructive">{errors.username.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -94,17 +89,12 @@ const AdminLogin: React.FC = () => {
                 {...register('password')}
                 className={errors.password ? 'border-destructive' : ''}
               />
-              {errors.password && (
-                <p className="text-xs text-destructive">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
             </div>
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Signing in...
-                </>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Signing in...</>
               ) : (
                 'Sign In'
               )}
